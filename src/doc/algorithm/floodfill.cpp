@@ -259,7 +259,7 @@ static int flooder(const Image* image,
   right--;
 
   /* draw the line */
-  (*proc)(left, y, right, data);
+  (*proc)((left < bounds.x ? bounds.x : left), y, right, data);
 
   /* store it in the list of flooded segments */
   c = y;
