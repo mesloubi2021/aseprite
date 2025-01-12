@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/app.h"
@@ -44,58 +44,57 @@
 
 namespace {
 
-  // Memory leak detector wrapper
-  class MemLeak {
-  public:
+// Memory leak detector wrapper
+class MemLeak {
+public:
 #ifdef LAF_MEMLEAK
-    MemLeak() { base_memleak_init(); }
-    ~MemLeak() { base_memleak_exit(); }
+  MemLeak() { base_memleak_init(); }
+  ~MemLeak() { base_memleak_exit(); }
 #else
-    MemLeak() { }
+  MemLeak() {}
 #endif
-  };
+};
 
 #if LAF_WINDOWS
-  // Successful calls to CoInitialize() (S_OK or S_FALSE) must match
-  // the calls to CoUninitialize().
-  // From: https://docs.microsoft.com/en-us/windows/win32/api/combaseapi/nf-combaseapi-couninitialize#remarks
-  struct CoInit {
-    HRESULT hr;
-    CoInit() {
-      hr = CoInitialize(nullptr);
-    }
-    ~CoInit() {
-      if (hr == S_OK || hr == S_FALSE)
-        CoUninitialize();
-    }
-  };
+// Successful calls to CoInitialize() (S_OK or S_FALSE) must match
+// the calls to CoUninitialize().
+// From:
+// https://docs.microsoft.com/en-us/windows/win32/api/combaseapi/nf-combaseapi-couninitialize#remarks
+struct CoInit {
+  HRESULT hr;
+  CoInit() { hr = CoInitialize(nullptr); }
+  ~CoInit()
+  {
+    if (hr == S_OK || hr == S_FALSE)
+      CoUninitialize();
+  }
+};
 #endif // LAF_WINDOWS
 
 #if USE_SENTRY_BREADCRUMB_FOR_WINTAB
-  // Delegate to write Wintab information as a Sentry breadcrumb (to
-  // know if there is a specific Wintab driver giving problems)
-  class WintabApiDelegate : public os::WintabAPI::Delegate {
-    bool m_done = false;
-  public:
-    WintabApiDelegate() {
-      os::instance()->setWintabDelegate(this);
+// Delegate to write Wintab information as a Sentry breadcrumb (to
+// know if there is a specific Wintab driver giving problems)
+class WintabApiDelegate : public os::WintabAPI::Delegate {
+  bool m_done = false;
+
+public:
+  WintabApiDelegate() { os::instance()->setWintabDelegate(this); }
+  ~WintabApiDelegate() { os::instance()->setWintabDelegate(nullptr); }
+  void onWintabID(const std::string& id) override
+  {
+    if (!m_done) {
+      m_done = true;
+      app::Sentry::addBreadcrumb("Wintab ID=" + id);
     }
-    ~WintabApiDelegate() {
-      os::instance()->setWintabDelegate(nullptr);
-    }
-    void onWintabID(const std::string& id) override {
-      if (!m_done) {
-        m_done = true;
-        app::Sentry::addBreadcrumb("Wintab ID=" + id);
-      }
-    }
-    void onWintabFields(const std::map<std::string, std::string>& fields) override {
-      app::Sentry::addBreadcrumb("Wintab DLL", fields);
-    }
-  };
+  }
+  void onWintabFields(const std::map<std::string, std::string>& fields) override
+  {
+    app::Sentry::addBreadcrumb("Wintab DLL", fields);
+  }
+};
 #endif // USE_SENTRY_BREADCRUMB_FOR_WINTAB
 
-}
+} // namespace
 
 // Aseprite entry point. (Called from "os" library.)
 int app_main(int argc, char* argv[])
@@ -110,18 +109,18 @@ int app_main(int argc, char* argv[])
   std::srand(static_cast<unsigned int>(std::time(nullptr)));
 
 #if LAF_WINDOWS
-  CoInit com;                   // To create COM objects
+  CoInit com; // To create COM objects
 #endif
 
   // Main thread name
   base::this_thread::set_name("main");
 
-  try {
 #if ENABLE_SENTRY
-    app::Sentry sentry;
+  app::Sentry sentry;
 #else
-    base::MemoryDump memoryDump;
+  base::MemoryDump memoryDump;
 #endif
+  try {
     MemLeak memleak;
     base::SystemConsole systemConsole;
     app::AppOptions options(argc, const_cast<const char**>(argv));
@@ -153,11 +152,18 @@ int app_main(int argc, char* argv[])
 
     // After starting the GUI, we'll always return 0, but in batch
     // mode we can return the error code.
-    return (app.isGui() ? 0: code);
+    return (app.isGui() ? 0 : code);
   }
   catch (std::exception& e) {
     std::cerr << e.what() << '\n';
     os::error_message(e.what());
-    return 1;
+
+#if ENABLE_SENTRY
+    sentry.addBreadcrumb(e.what());
+#endif
+
+    // Crash with the unhandled exception, so the OS or Sentry can
+    // handle/report the crash.
+    throw;
   }
 }

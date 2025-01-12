@@ -1,5 +1,5 @@
 // Aseprite
-// Copyright (C) 2023  Igara Studio S.A.
+// Copyright (C) 2023-2024  Igara Studio S.A.
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
@@ -15,14 +15,20 @@
 #include "ui/size_hint_event.h"
 #include "ui/widget.h"
 
-namespace app {
-namespace script {
+namespace app { namespace script {
 
 class Tab : public app::ButtonSet::Item {
 public:
+  Tab(ui::Grid* content);
+  ui::Grid* content() { return m_content; }
+
   obs::signal<void()> Click;
+
 protected:
   virtual void onClick();
+
+private:
+  ui::Grid* m_content;
 };
 
 class Pages : public ui::VBox {
@@ -31,13 +37,12 @@ protected:
 };
 
 class Tabs : public ui::VBox {
-
 public:
   static ui::WidgetType Type();
 
   Tabs(int selectorFlags);
 
-  Tab* addTab(ui::Grid* content);
+  Tab* addTab(const std::string& id, const std::string& text);
   void selectTab(int index);
   void setSelectorFlags(int selectorFlags);
 
@@ -64,7 +69,6 @@ private:
   int m_selectorFlags;
 };
 
-} // namespace script
-} // namespace app
+}} // namespace app::script
 
 #endif

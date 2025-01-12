@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Aseprite -->
-<!-- Copyright (C) 2018-2023  Igara Studio S.A. -->
+<!-- Copyright (C) 2018-2024  Igara Studio S.A. -->
 <!-- Copyright (C) 2014-2018  David Capello -->
 <preferences>
 
@@ -133,6 +133,10 @@
       <value id="BILINEAR_MIPMAP" value="2" />
       <value id="TRILINEAR_MIPMAP" value="3" />
     </enum>
+    <enum id="AlphaRange">
+      <value id="EIGHT_BIT" value="0" />
+      <value id="PERCENTAGE" value="1" />
+    </enum>
   </types>
 
   <global>
@@ -201,7 +205,7 @@
     </section>
     <section id="timeline">
       <option id="keep_selection" type="bool" default="false" />
-      <option id="select_on_click" type="bool" default="false" />
+      <option id="select_on_click" type="bool" default="true" />
       <option id="select_on_click_with_key" type="bool" default="true" />
       <option id="select_on_drag" type="bool" default="true" />
       <option id="drag_and_drop_from_edges" type="bool" default="true" />
@@ -212,6 +216,7 @@
       <option id="cursor_color" type="app::Color" default="app::Color::fromMask()" />
       <option id="painting_cursor_type" type="PaintingCursorType" default="PaintingCursorType::CROSSHAIR_ON_SPRITE" />
       <option id="brush_preview" type="BrushPreview" default="BrushPreview::FULL" />
+      <option id="snap_to_grid" type="bool" default="false" />
     </section>
     <section id="preview" text="Preview">
       <option id="play_once" type="bool" default="false" />
@@ -225,6 +230,7 @@
     </section>
     <section id="tablet" text="Tablet">
       <option id="api" type="std::string" />
+      <option id="set_cursor_fix" type="bool" default="true" />
     </section>
     <section id="experimental" text="Experimental">
       <option id="multiple_windows" type="bool" default="false" />
@@ -306,6 +312,7 @@
       <option id="doubleclick_select_tile" type="bool" default="true" />
       <option id="force_rotsprite" type="bool" default="false" />
       <option id="multicel_when_layers_or_frames" type="bool" default="true" />
+      <option id="snap_to_grid" type="bool" default="true" />
     </section>
     <section id="quantization">
       <option id="with_alpha" type="bool" default="true" />
@@ -314,6 +321,7 @@
       <option id="to_gray" type="ToGrayAlgorithm" default="ToGrayAlgorithm::DEFAULT" />
       <option id="advanced" type="bool" default="false" />
       <option id="rgbmap_algorithm" type="doc::RgbMapAlgorithm" default="doc::RgbMapAlgorithm::DEFAULT" />
+      <option id="fit_criteria" type="doc::FitCriteria" default="doc::FitCriteria::DEFAULT" />
     </section>
     <section id="eyedropper" text="Editor">
       <option id="channel" type="EyedropperChannel" default="EyedropperChannel::COLOR_ALPHA" />
@@ -429,12 +437,17 @@
       <option id="window_profile" type="WindowColorProfile" default="WindowColorProfile::MONITOR" />
       <option id="window_profile_name" type="std::string" />
     </section>
+    <section id="range">
+      <option id="alpha" type="AlphaRange" default="AlphaRange::EIGHT_BIT" />
+      <option id="opacity" type="AlphaRange" default="AlphaRange::PERCENTAGE" />
+    </section>
     <section id="canvas_size">
       <option id="trim_outside" type="bool" default="false" />
     </section>
     <section id="tileset">
       <option id="base_index" type="int" default="1" />
       <option id="cache_compressed_tilesets" type="bool" default="true" />
+      <option id="advanced" type="bool" default="false" />
     </section>
     <section id="tilemap">
       <option id="show_delete_unused_tileset_alert" type="bool" default="true" />
@@ -543,6 +556,7 @@
       <option id="ani_dir" type="doc::AniDir" default="doc::AniDir::FORWARD" />
       <option id="apply_pixel_ratio" type="bool" default="false" />
       <option id="for_twitter" type="bool" default="false" />
+      <option id="play_subtags" type="bool" default="true" />
     </section>
     <section id="sprite_sheet">
       <option id="defined" type="bool" default="false" />
@@ -594,6 +608,7 @@
       <option id="grid" type="bool" default="false" />
       <option id="pixel_grid" type="bool" default="false" />
       <option id="brush_preview" type="bool" default="true" />
+      <option id="brush_preview_in_preview" type="bool" default="false" />
       <option id="slices" type="bool" default="true" />
       <option id="auto_guides" type="bool" default="true" />
       <option id="tile_numbers" type="bool" default="true" />
